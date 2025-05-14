@@ -101,7 +101,7 @@ html{
     align-items: center;
     /* margin-top: 100px; */
     width: 100%;
-    min-width: 1100px;
+    /* min-width: 1100px; */
     min-height: calc(100vh - 100px);
     background-color: var(--color-section-backgrounds);
     position: absolute;
@@ -377,6 +377,10 @@ html{
     width: fit-content;
 }
 
+.screen__content-block-picture-code pre{
+    text-wrap: wrap;
+}
+
 .content-block-sample-img--srcset{
     text-align: center;
 }
@@ -388,9 +392,17 @@ html{
     width: fit-content;
 }
 
+.screen__content-block-audio-code pre{
+    text-wrap: wrap;
+}
+
 .screen__content-block-video-code{
     text-align: left;
     width: fit-content;
+}
+
+.screen__content-block-video-code pre{
+    text-wrap: wrap;
 }
 
 
@@ -401,6 +413,10 @@ html{
 .screen__content-block-form-code{
     text-align: left;
     width: fit-content;
+}
+
+.screen__content-block-form-code pre{
+    text-wrap: wrap;
 }
 
 
