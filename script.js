@@ -16,11 +16,52 @@ header_buttons.forEach((button, index) =>{
         });
         screens[index].classList.add("screen--active");
         screens_centers[index].classList.add("center--fade-in");
-    })
+    });
+});
+
+
+// 
+
+
+
+
+// height dinamico de screen_content_blocks y screen_centers
+
+
+const screen_descriptions = document.querySelectorAll(".screen__description"),
+screen_content_blocks = document.querySelectorAll(".screen__content-block");
+
+
+const descriptionsObserver = new ResizeObserver(entries => {
+    heightSetter(entries, screen_descriptions, screen_content_blocks);
+});
+
+screen_descriptions.forEach(screen_description => {
+    descriptionsObserver.observe(screen_description);
 });
 
 
 
+const screen_centers = document.querySelectorAll(".screen__center"),
+screen_wrappers = document.querySelectorAll(".screen__wrapper");
+
+
+const wrappersObserver = new ResizeObserver(entries => {
+    heightSetter(entries, screen_wrappers, screen_centers)
+});
+
+screen_wrappers.forEach(screen_description => {
+    wrappersObserver.observe(screen_description);
+});
+
+
+function heightSetter (entradas, heightToObserve, heightToSet){
+    entradas.forEach(entry => {
+        const index = Array.from(heightToObserve).indexOf(entry.target);
+        const h = entry.target.offsetHeight;
+        heightToSet[index].style.height = h + "px";
+    });
+}
 
 // SLIDE Y TIMEOUT DINAMICO
 
@@ -42,6 +83,7 @@ const header_tags = document.getElementById("content-block-header-tags"),
     forms_description = document.getElementById("content-block-forms-description"),
     layout = document.getElementById("content-block-layout"),
     layout_description = document.getElementById("content-block-layout-description");
+    
 
 let universalTimeout = false;
 
@@ -62,7 +104,7 @@ function monoSlide(e1, e2) {
 function timeoutSystem (e1, e2, slideSelector, e3) {
     if (universalTimeout) { }
     else if (slideSelector == 2) {
-        monoSlide(e1, e2)
+        monoSlide(e1, e2);
         universalTimeout = true;
         setTimeout(() => universalTimeout = false, 300);
     } else {
