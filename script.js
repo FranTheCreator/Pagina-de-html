@@ -10,10 +10,12 @@ header_buttons.forEach((button, index) =>{
         screens.forEach(screen =>{
             screen.classList.remove("screen--active");
         });
+        
         screens_centers.forEach(screen_center =>{
             screen_center.classList.remove("center--fade-in");
             void screen_center.offsetWidth;
         });
+
         screens[index].classList.add("screen--active");
         screens_centers[index].classList.add("center--fade-in");
     });
@@ -27,7 +29,7 @@ header_buttons.forEach((button, index) =>{
 
 // height dinamico de screen_content_blocks y screen_centers
 
-
+    // screen_centers
 const screen_descriptions = document.querySelectorAll(".screen__description"),
 screen_content_blocks = document.querySelectorAll(".screen__content-block");
 
@@ -41,7 +43,7 @@ screen_descriptions.forEach(screen_description => {
 });
 
 
-
+    // screen_content_blocks
 const screen_centers = document.querySelectorAll(".screen__center"),
 screen_wrappers = document.querySelectorAll(".screen__wrapper");
 
@@ -50,8 +52,8 @@ const wrappersObserver = new ResizeObserver(entries => {
     heightSetter(entries, screen_wrappers, screen_centers)
 });
 
-screen_wrappers.forEach(screen_description => {
-    wrappersObserver.observe(screen_description);
+screen_wrappers.forEach(screen_wrapper => {
+    wrappersObserver.observe(screen_wrapper);
 });
 
 
@@ -88,27 +90,27 @@ const header_tags = document.getElementById("content-block-header-tags"),
 let universalTimeout = false;
 
 
-function dualSlide(e1, e2, e3) {
-    e1.classList.toggle(`dual-slide${e3}`);
-    if (e2.classList.contains("no-index")) {
-        setTimeout(() => e2.classList.remove("no-index"), 300);
+function dualSlide(contentBlockDescription, oppositeContentBlock, mainContentBlockSide) {
+    contentBlockDescription.classList.toggle(`dual-slide${mainContentBlockSide}`);
+    if (oppositeContentBlock.classList.contains("no-index")) {
+        setTimeout(() => oppositeContentBlock.classList.remove("no-index"), 300);
     }
     e2.classList.add("no-index");
 }
 
-function monoSlide(e1, e2) {
-    e1.classList.toggle("mono-slide-c");
-    e2.classList.toggle("mono-slide-d");
+function monoSlide(contentBlock, contentBlockDescription) {
+    contentBlock.classList.toggle("mono-slide-c");
+    contentBlockDescription.classList.toggle("mono-slide-d");
 }
 
-function timeoutSystem (e1, e2, slideSelector, e3) {
+function timeoutSystem (element1, element2, slideSelector, mainContentBlockSide) {
     if (universalTimeout) { }
     else if (slideSelector == 2) {
-        monoSlide(e1, e2);
+        monoSlide(element1, element2);
         universalTimeout = true;
         setTimeout(() => universalTimeout = false, 300);
     } else {
-        dualSlide(e1, e2, e3)
+        dualSlide(element1, element2, mainContentBlockSide)
         universalTimeout = true;
         setTimeout(() => universalTimeout = false, 300);
     }
