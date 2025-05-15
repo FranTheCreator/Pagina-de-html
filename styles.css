@@ -46,22 +46,66 @@ html{
     left: 0;
 }
 
+.header__title{
+    user-select: none;
+}
+
 
 
 
 /* NAV */
 
+.header__wrapper{
+    width: 80%;
+    height: fit-content;
+    position: relative;
+}
+
+.header__wrapper::before{
+    content: "";
+    z-index: 10000000;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: -1px;
+    height: 100%;
+    width: 30px;
+    background: linear-gradient(to left, transparent, var(--color-light-crimson), var(--color-light-crimson));
+}
+.header__wrapper::after{
+    content: "";
+    z-index: 10000000;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    right: -1px;
+    height: 100%;
+    width: 30px;
+    background: linear-gradient(to right, transparent, var(--color-light-crimson), var(--color-light-crimson));
+}
+
+.header__nav{
+    display: flex;
+    justify-content: center;
+    overflow-x: scroll;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+}
+
 .header__list{
+    margin: 0 20% 0;
     display: inline-flex;
     list-style: none;
 }
 
 .header__item{
+    scroll-snap-align: center;
+    width: max-content;
     margin: 5px;
 }
 
 .header__button{
-    transition: color 0.2s, opacity 0.2s, transform 0.2s, box-shadow 0.2s, border 0.3s;
+    transition: color .2s, opacity .2s, transform .2s, box-shadow .2s, border .3s;
     padding: 3px 7px;
     color: #000;
     font-size: 14px;
@@ -84,7 +128,7 @@ html{
 
 .header__button:active{
     color: #fff;
-    transform: scale(1);
+    transform: scale(1.01);
     /* box-shadow: 0 0 5px 2px #0008 inset; */
 }
 
@@ -134,7 +178,7 @@ html{
 
 .screen__content-block{
     user-select: none;
-    width: 50%;
+    width: max(450px, 50%);
     height: 100%;
     padding: 1.2em;
     background-color: var(--color-pinky);
@@ -496,21 +540,37 @@ html{
 
 /* MEDIA QUERYS */
 
-@media screen and (max-width: 1110px){
+@media screen and (max-width: 1200px){
     .screen__center{
         width: 100%;
     }
 }
 
 @media screen and (max-width: 1000px){
+    .header__nav{
+        justify-content: flex-start;
+    }
+
+/* -------- */
+
     .screen__center{
         flex-flow: column;
-        gap: 40px;
+        gap: 50px;
         height: fit-content !important;
     }
 
     .screen__wrapper{
         position: relative;
+    }
+}
+
+@media screen and (max-width: 450px){
+    .screen__content-block{
+        width: 90%;        
+    }
+
+    .screen__description{
+        width: 90%;            
     }
 }
 
