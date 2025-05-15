@@ -66,24 +66,104 @@ function heightSetter (entradas, heightToObserve, heightToSet){
 
 // SLIDE RESPONSIVE Y TIMEOUT DINAMICO
 
-let universalTimeout = false;
+let universalTimeout = false,
+    dualIndexList = [],
+    dualClassList = [];
 
-screen_content_blocks.forEach( (screen_content_block, index)=>{
-    if (screen_content_block.classList.contains("content-block--dual-block-left") && screen_content_blocks[index + 1].classList.contains("content-block--dual-block-right")){
-        screen_content_block.addEventListener("click", ()=>{
-            timeoutSystem(screen_descriptions[index], screen_content_blocks[index + 1], 1, "-left");
-        });
+const handlersMap = new Map();
+// Dios como odio el removeEventListener, por qué no lo hicieron más fáciiiiiiil, es horrible
 
-        screen_content_blocks[index + 1].addEventListener("click", ()=>{
-            timeoutSystem(screen_descriptions[index + 1], screen_content_block, 1, "-right");
-        });
 
-    } else { 
-        screen_content_block.addEventListener("click", ()=>{
-            timeoutSystem(screen_content_block, screen_descriptions[index], 2);
-        });
-    }
-});
+
+function ResponsiveSlides (){
+    screen_content_blocks.forEach((screen_content_block, index) => {
+        const key = `block-${index}`;
+
+        let screen__description = screen_descriptions[index],
+            nextScreenContentBlock = screen_content_blocks[index + 1],
+            nextScreenDescription = screen_descriptions[index + 1],
+            wrapper = screen_content_block.parentElement;
+            nextWrapper = nextScreenContentBlock?.parentElement;
+
+        if (!handlersMap.has(key)) {
+            handlersMap.set(key, {
+                handler1: () => addDualSlide(screen__description, nextScreenContentBlock, "-left"),
+                handler2: () => addDualSlide(nextScreenDescription, screen_content_block, "-right"),
+                handler3: () => addMonoSlide(screen_content_block, screen__description),
+            });
+        }
+
+        const { handler1, handler2, handler3 } = handlersMap.get(key);
+
+        if (window.innerWidth > 1000) {
+            screen_content_block.removeEventListener("click", handler3);
+
+            if (dualIndexList.includes(index) && dualIndexList.includes(index + 1)){
+                wrapper.classList.remove("wrapper--mono-block");
+                screen_content_block.classList.add(dualClassList[0]);
+                // screen__description.classList.replace("description--mono-block", dualClassList[1]);
+                screen__description.classList = `screen__description ${dualClassList[1]}`;
+
+                
+
+                nextWrapper.classList.remove("wrapper--mono-block");
+                nextScreenContentBlock.classList.add(dualClassList[2]);
+                nextScreenDescription.classList = `screen__description ${dualClassList[3]}`;
+            }
+
+            if (screen_content_block.classList.contains("content-block--dual-block-left") && nextScreenContentBlock) {
+                screen_content_block.addEventListener("click", handler1);
+                nextScreenContentBlock.addEventListener("click", handler2);
+            } else {
+                screen_content_block.addEventListener("click", handler3);
+            }
+
+        } else {
+            if (
+                screen_content_block.classList.length > 1 &&
+                screen_content_block.classList.contains("content-block--dual-block-left")
+            ){
+                if (!dualIndexList.includes(index)) { 
+                    dualIndexList.push(index, index + 1) 
+                }
+                if (!dualClassList.includes(screen_content_block.classList.item(1))) { 
+                    dualClassList.push(
+                        screen_content_block.classList.item(1), 
+                        screen__description.classList.item(1), 
+                        nextScreenContentBlock.classList.item(1), 
+                        nextScreenDescription.classList.item(1)
+                    )
+                }
+                screen_content_block.removeEventListener("click", handler1);
+                nextScreenContentBlock.removeEventListener("click", handler2);
+                
+                screen_content_block.classList = "screen__content-block"
+                screen__description.classList = "screen__description description--mono-block"
+                wrapper.classList.add("wrapper--mono-block");
+                screen_content_block.classList.remove(screen_content_block.classList.item(1));
+                // screen__description.classList.replace(screen__description.classList.item(1), "description--mono-block");
+
+
+                nextScreenContentBlock.classList = "screen__content-block"
+                nextScreenDescription.classList = "screen__description description--mono-block"
+                nextWrapper.classList.add("wrapper--mono-block");
+                nextScreenContentBlock.classList.remove(nextScreenContentBlock.classList.item(1));
+                // nextScreenDescription.classList.replace(nextScreenDescription.classList.item(1), "description--mono-block")
+            }
+            screen_content_block.addEventListener("click", handler3);
+        }
+    });
+}
+
+
+
+function addDualSlide(contentBlockDescription, otherContentBlock, side) {
+    timeoutSystem(contentBlockDescription, otherContentBlock, 1, side);
+}
+        
+function addMonoSlide(contentBlock, contentBlockDescription) {
+    timeoutSystem(contentBlock, contentBlockDescription, 2);
+}
 
 
 
@@ -112,3 +192,10 @@ function timeoutSystem (element1, element2, slideSelector, mainContentBlockSide)
         setTimeout(() => universalTimeout = false, 300);
     }
 }
+
+
+
+
+window.addEventListener("resize", ResponsiveSlides);
+
+ResponsiveSlides();
