@@ -22,17 +22,10 @@ header_buttons.forEach((button, index) =>{
 });
 
 
-// 
 
-
-
-
-// height dinamico de screen_content_blocks y screen_centers
-
-    // screen_centers
+// HEIGHT DINAMICO de screen_centers
 const screen_descriptions = document.querySelectorAll(".screen__description"),
 screen_content_blocks = document.querySelectorAll(".screen__content-block");
-
 
 const descriptionsObserver = new ResizeObserver(entries => {
     heightSetter(entries, screen_descriptions, screen_content_blocks);
@@ -43,13 +36,13 @@ screen_descriptions.forEach(screen_description => {
 });
 
 
-    // screen_content_blocks
+
+// HEIGHT DINAMICO de screen_content_blocks
 const screen_centers = document.querySelectorAll(".screen__center"),
 screen_wrappers = document.querySelectorAll(".screen__wrapper");
 
-
 const wrappersObserver = new ResizeObserver(entries => {
-    heightSetter(entries, screen_wrappers, screen_centers)
+    heightSetter(entries, screen_wrappers, screen_centers);
 });
 
 screen_wrappers.forEach(screen_wrapper => {
@@ -57,37 +50,41 @@ screen_wrappers.forEach(screen_wrapper => {
 });
 
 
+
 function heightSetter (entradas, heightToObserve, heightToSet){
     entradas.forEach(entry => {
         const index = Array.from(heightToObserve).indexOf(entry.target);
         const h = entry.target.offsetHeight;
+
+        if (index === -1 || !heightToSet[index]) return;
+        
         heightToSet[index].style.height = h + "px";
     });
 }
 
-// SLIDE Y TIMEOUT DINAMICO
 
-const header_tags = document.getElementById("content-block-header-tags"),
-    header_tags_description = document.getElementById("content-block-header-tags-description"),
-    style_tags = document.getElementById("content-block-style-tags"),
-    style_tags_description = document.getElementById("content-block-style-tags-description"),
-    lists = document.getElementById("content-block-lists"),
-    lists_description = document.getElementById("content-block-lists-description"),
-    table = document.getElementById("content-block-table"),
-    table_description = document.getElementById("content-block-table-description"),
-    links = document.getElementById("content-block-links"),
-    links_description = document.getElementById("content-block-links-description"),
-    imgs = document.getElementById("content-block-imgs"),
-    imgs_description = document.getElementById("content-block-imgs-description"),
-    audioVideo = document.getElementById("content-block-audio-video"),
-    audioVideo_description = document.getElementById("content-block-audio-video-description"),
-    forms = document.getElementById("content-block-forms"),
-    forms_description = document.getElementById("content-block-forms-description"),
-    layout = document.getElementById("content-block-layout"),
-    layout_description = document.getElementById("content-block-layout-description");
-    
+
+// SLIDE RESPONSIVE Y TIMEOUT DINAMICO
 
 let universalTimeout = false;
+
+screen_content_blocks.forEach( (screen_content_block, index)=>{
+    if (screen_content_block.classList.contains("content-block--dual-block-left") && screen_content_blocks[index + 1].classList.contains("content-block--dual-block-right")){
+        screen_content_block.addEventListener("click", ()=>{
+            timeoutSystem(screen_descriptions[index], screen_content_blocks[index + 1], 1, "-left");
+        });
+
+        screen_content_blocks[index + 1].addEventListener("click", ()=>{
+            timeoutSystem(screen_descriptions[index + 1], screen_content_block, 1, "-right");
+        });
+
+    } else { 
+        screen_content_block.addEventListener("click", ()=>{
+            timeoutSystem(screen_content_block, screen_descriptions[index], 2);
+        });
+    }
+});
+
 
 
 function dualSlide(contentBlockDescription, oppositeContentBlock, mainContentBlockSide) {
@@ -95,7 +92,7 @@ function dualSlide(contentBlockDescription, oppositeContentBlock, mainContentBlo
     if (oppositeContentBlock.classList.contains("no-index")) {
         setTimeout(() => oppositeContentBlock.classList.remove("no-index"), 300);
     }
-    e2.classList.add("no-index");
+    oppositeContentBlock.classList.add("no-index");
 }
 
 function monoSlide(contentBlock, contentBlockDescription) {
@@ -115,33 +112,3 @@ function timeoutSystem (element1, element2, slideSelector, mainContentBlockSide)
         setTimeout(() => universalTimeout = false, 300);
     }
 }
-
-
-header_tags.addEventListener("click", () => {
-    timeoutSystem(header_tags_description, style_tags, 1, "-left");
-});
-style_tags.addEventListener("click", () => {
-    timeoutSystem(style_tags_description, header_tags, 1, "-right");
-});
-lists.addEventListener("click", () => {
-    timeoutSystem(lists, lists_description, 2);
-});
-table.addEventListener("click", () =>{
-    timeoutSystem(table, table_description, 2);
-});
-links.addEventListener("click", () =>{
-    timeoutSystem(links, links_description, 2);
-});
-imgs.addEventListener("click", ()=>{
-    timeoutSystem(imgs_description, audioVideo, 1, "-left");
-});
-audioVideo.addEventListener("click", ()=>{
-    timeoutSystem(audioVideo_description, imgs, 1, "-right");
-});
-forms.addEventListener("click", ()=>{
-    timeoutSystem(forms, forms_description, 2);
-});
-layout.addEventListener("click", ()=>{
-    console.log("adad")
-    timeoutSystem( layout, layout_description, 2);
-});
