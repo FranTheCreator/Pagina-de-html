@@ -86,7 +86,9 @@ function heightSetter (entradas, heightToObserve, heightToSet){
 
 let universalTimeout = false,
     dualIndexList = [],
-    dualClassList = [];
+    dualClassList = [],
+    deletedModifiersIndexList = [],
+    deletedModifiersClassList = [];
 
 // ***
 const handlersMap = new Map();
@@ -128,63 +130,77 @@ function ResponsiveSlides (){
         // ***
 
         if (window.innerWidth > 1000) {
-            console.log("estas en modo desktop")
-
-            if (document.querySelectorAll(".screen__hitbox")[0]){
-                wrapper.appendChild(screen_content_block);
-                wrapper.appendChild(screen_description);
-                wrapper.removeChild(document.querySelectorAll(".screen__hitbox")[0]);
-            }
-
-            screen_content_block.removeEventListener("click", handler3);
-
-            if (dualIndexList.includes(index) && dualIndexList.includes(index + 1)){
-                wrapper.classList.remove("wrapper--mono-block");
-                // setTimeout(()=>{screen_content_block.className = `screen__content-block ${dualClassList[0]}`;}, 150)
-                screen_content_block.className = `screen__content-block ${dualClassList[0]}`;
-                screen_description.className = `screen__description ${dualClassList[1]}`;
-
-                
-
-                nextWrapper.classList.remove("wrapper--mono-block");
-                // setTimeout(()=>{nextScreenContentBlock.className = `screen__content-block ${dualClassList[2]}`;}, 150)
-                nextScreenContentBlock.className = `screen__content-block ${dualClassList[2]}`;
-                nextScreenDescription.className = `screen__description ${dualClassList[3]}`;
-            }
-
-            if (screen_content_block.classList.contains("content-block--dual-block-left") && nextScreenContentBlock) {
-                screen_content_block.addEventListener("click", handler1);
-                nextScreenContentBlock.addEventListener("click", handler2);
-            } else {
-                screen_content_block.addEventListener("click", handler3);
-            }
+            desktopLayout(screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index);
         } 
         else if (window.innerWidth < 800){
-            if (wrapper.firstElementChild.className != "screen__hitbox"){ 
-                console.log("ejecutando modo mobile");
-                monoLayout(screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index);
-                screen_content_block.removeEventListener("click", handler3);
-                screen_hitbox.addEventListener("click", handler4);
-
-                screen_content_block.classList.add("content-block--flip");
-                screen_description.className = "screen__description description--flip";
-
-                screen_frame.appendChild(screen_content_block);
-                screen_frame.appendChild(screen_description);
-                screen_hitbox.appendChild(screen_frame);
-                wrapper.appendChild(screen_hitbox);
-            }
-        } 
+            mobileLayout(screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, handler4, screen_hitbox, screen_frame, index);
+        }
         else {
-            console.log("estas entre modo mobile y desktop");
-            if (document.querySelectorAll(".screen__hitbox")[0]){
-                wrapper.appendChild(screen_content_block);
-                wrapper.appendChild(screen_description);
-                wrapper.removeChild(document.querySelectorAll(".screen__hitbox")[0]);
-            }
+            deleteMobileLayout(wrapper, screen_content_block, screen_description);
             monoLayout(screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index);
+            addDeletedModifiers(screen_content_block, index);
         }
     });
+}
+
+function deleteMobileLayout (wrapper, screen_content_block, screen_description){
+    const hitboxes = document.querySelectorAll(".screen__hitbox");
+    if (hitboxes.length > 0) {
+        wrapper.appendChild(screen_content_block);
+        wrapper.appendChild(screen_description);
+        wrapper.removeChild(hitboxes[0]);
+    }
+}
+
+function addDeletedModifiers (screen_content_block, index){
+    if (deletedModifiersIndexList.includes(index)){
+        screen_content_block.classList.add(deletedModifiersClassList[index]);
+    }
+}
+
+
+function desktopLayout (screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index) {
+    deleteMobileLayout(wrapper, screen_content_block, screen_description);
+
+    screen_content_block.removeEventListener("click", handler3);
+
+
+    if (dualIndexList.includes(index) && dualIndexList.includes(index + 1)){
+        wrapper.classList.remove("wrapper--mono-block");
+        screen_content_block.className = `screen__content-block ${dualClassList[0]}`;
+        screen_description.className = `screen__description ${dualClassList[1]}`;
+
+        
+
+        nextWrapper.classList.remove("wrapper--mono-block");
+        nextScreenContentBlock.className = `screen__content-block ${dualClassList[2]}`;
+        nextScreenDescription.className = `screen__description ${dualClassList[3]}`;
+    }
+
+    if (screen_content_block.classList.contains("content-block--dual-block-left") && nextScreenContentBlock) {
+        screen_content_block.addEventListener("click", handler1);
+        nextScreenContentBlock.addEventListener("click", handler2);
+    } else {
+        screen_content_block.addEventListener("click", handler3);
+    }
+    addDeletedModifiers(screen_content_block, index);
+}
+
+function mobileLayout (screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, handler4, screen_hitbox, screen_frame, index) {
+    if (wrapper.firstElementChild.className != "screen__hitbox"){ 
+        monoLayout(screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index);
+        screen_content_block.removeEventListener("click", handler3);
+        screen_hitbox.addEventListener("click", handler4);
+
+        screen_content_block.classList.add("content-block--flip");
+        screen_description.className = "screen__description description--flip";
+
+        screen_frame.appendChild(screen_content_block);
+        screen_frame.appendChild(screen_description);
+        screen_hitbox.appendChild(screen_frame);
+        wrapper.appendChild(screen_hitbox);
+    }
+    addDeletedModifiers(screen_content_block, index);
 }
 
 function monoLayout (screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index){
@@ -203,6 +219,7 @@ function monoLayout (screen_content_block, screen_description, nextScreenContent
                 nextScreenDescription.classList.item(1)
             )
         }
+        
         screen_content_block.removeEventListener("click", handler1);
         nextScreenContentBlock.removeEventListener("click", handler2);
 
@@ -211,6 +228,11 @@ function monoLayout (screen_content_block, screen_description, nextScreenContent
         nextScreenDescription.className = "screen__description description--mono-block"
         nextWrapper.classList.add("wrapper--mono-block");
     }
+    if (!deletedModifiersIndexList.includes(index) && screen_content_block.classList.length > 1 && !screen_content_block.className.includes("dual-block") && !screen_content_block.className.includes("flip")){
+        deletedModifiersIndexList.push(index);
+        deletedModifiersClassList.push(screen_content_block.classList.item(1));
+    } else if (!deletedModifiersClassList.includes(index) && deletedModifiersClassList.length <= screen_content_blocks.length - 1){ deletedModifiersClassList.push("") }
+
     wrapper.classList.add("wrapper--mono-block");
     screen_content_block.className = "screen__content-block"
     screen_description.className = "screen__description description--mono-block"
@@ -246,7 +268,6 @@ function dualSlide(contentBlockDescription, oppositeContentBlock, mainContentBlo
 
 function flip(frame){
     frame.classList.toggle("mobile-flip-card");
-    console.log("click");
 }
 
 

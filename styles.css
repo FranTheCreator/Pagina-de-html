@@ -70,8 +70,9 @@ html{
     left: -1px;
     height: 100%;
     width: 30px;
-    background: linear-gradient(to left, transparent, var(--color-light-crimson), var(--color-light-crimson));
+    background: linear-gradient(to left, transparent, var(--color-light-crimson));
 }
+
 .header__wrapper::after{
     content: "";
     z-index: 10000000;
@@ -81,7 +82,8 @@ html{
     right: -1px;
     height: 100%;
     width: 30px;
-    background: linear-gradient(to right, transparent, var(--color-light-crimson), var(--color-light-crimson));
+    background: linear-gradient(to right, transparent, var(--color-light-crimson));
+
 }
 
 .header__nav{
@@ -367,10 +369,6 @@ html{
     display: flex;
     justify-content: center;
     padding: 20px;
-    font-size: 16px;
-    font-weight: 600;
-    height: fit-content;
-    color: var(--color-font-content);
 }
 
 
@@ -524,7 +522,6 @@ html{
 .content-block--flip{
     backface-visibility: hidden;
 }
-
 
 .description--flip{
     width: auto;
