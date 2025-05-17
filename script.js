@@ -1,14 +1,13 @@
 // Cosas que no entiendo = ***
 // Cosas que entiendo más o menos ***?
 
-
-// CAMBIO DE SCREEN
-
+// SCREEN SWITCH
 const header_buttons = document.querySelectorAll(".header__button"),
     screens = document.querySelectorAll(".screen"),
     screens_centers = document.querySelectorAll(".screen__center");
 
 
+// Add EventListeners to buttons  
 header_buttons.forEach((button, index) =>{
     button.addEventListener("click", ()=>{
         screens.forEach(screen =>{
@@ -37,7 +36,7 @@ header_buttons.forEach((button, index) =>{
 
 
 
-// HEIGHT DINAMICO de screen_centers
+// DINAMIC HEIGHT OF POSITION ABSOLUTE-RELATIVE: screen_centers
 const screen_descriptions = document.querySelectorAll(".screen__description"),
 screen_content_blocks = document.querySelectorAll(".screen__content-block");
 
@@ -53,7 +52,7 @@ screen_descriptions.forEach(screen_description => {
 
 
 
-// HEIGHT DINAMICO de screen_content_blocks
+// DINAMIC HEIGHT OF POSITION ABSOLUTE-RELATIVE: screen_content_blocks
 // ***?
 const screen_centers = document.querySelectorAll(".screen__center"),
 screen_wrappers = document.querySelectorAll(".screen__wrapper");
@@ -69,8 +68,8 @@ screen_wrappers.forEach(screen_wrapper => {
 
 
 
-function heightSetter (entradas, heightToObserve, heightToSet){
-    entradas.forEach(entry => {
+function heightSetter (entries, heightToObserve, heightToSet){
+    entries.forEach(entry => {
         const index = Array.from(heightToObserve).indexOf(entry.target);
         const h = entry.target.offsetHeight;
 
@@ -82,7 +81,7 @@ function heightSetter (entradas, heightToObserve, heightToSet){
 
 
 
-// SLIDE RESPONSIVE Y TIMEOUT DINAMICO
+// RESPONSIVE SLIDE  AND TIMEOUT 
 
 let universalTimeout = false,
     dualIndexList = [],
@@ -93,11 +92,66 @@ let universalTimeout = false,
 // ***
 const handlersMap = new Map();
 // ***
-// Dios como odio el removeEventListener, por qué no lo hicieron más fáciiiiiiil, es horrible
 
 
+function oneTimeDesktopLayoutRenderer (){
+    screen_content_blocks.forEach((screen_content_block, index) =>{ 
+        
+        let screen_description = screen_descriptions[index],
+            nextScreenContentBlock = screen_content_blocks[index + 1],
+            nextScreenDescription = screen_descriptions[index + 1],
+            wrapper = screen_wrappers[index],
+            nextWrapper = screen_wrappers[index + 1];
 
-function ResponsiveSlides (){
+        // ***
+        const key = `block-${index}`;
+        
+        if (!handlersMap.has(key)) {
+            handlersMap.set(key, {
+                handler1: () => indirectDualSlideRemover(screen_description, nextScreenContentBlock, "-left"),
+                handler2: () => indirectDualSlideRemover(nextScreenDescription, screen_content_block, "-right"),
+                handler3: () => indirectMonoSlideRemover(screen_content_block, screen_description),
+            });
+        }
+        
+        const { handler1, handler2, handler3 } = handlersMap.get(key);
+        // ***
+
+        
+        desktopLayout(screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index);
+    });
+}
+
+function oneTimeMonoLayoutRenderer (){
+    screen_content_blocks.forEach((screen_content_block, index) => {
+        
+        let screen_description = screen_descriptions[index],
+            nextScreenContentBlock = screen_content_blocks[index + 1],
+            nextScreenDescription = screen_descriptions[index + 1],
+            wrapper = screen_wrappers[index],
+            nextWrapper = screen_wrappers[index + 1];
+
+        // ***
+        const key = `block-${index}`;
+
+        if (!handlersMap.has(key)) {
+            handlersMap.set(key, {
+                handler1: () => indirectDualSlideRemover(screen_description, nextScreenContentBlock, "-left"),
+                handler2: () => indirectDualSlideRemover(nextScreenDescription, screen_content_block, "-right"),
+                handler3: () => indirectMonoSlideRemover(screen_content_block, screen_description),
+            });
+        }
+
+        const { handler1, handler2, handler3 } = handlersMap.get(key);
+        // ***
+
+        deleteMobileLayout(wrapper, screen_content_block, screen_description);
+        monoLayout(screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index);
+        addDeletedModifiers(screen_content_block, index);
+    });
+}
+
+function oneTimeMobileLayoutRenderer (){
     screen_content_blocks.forEach((screen_content_block, index) => {
         // ***
         const key = `block-${index}`;
@@ -116,31 +170,112 @@ function ResponsiveSlides (){
             wrapper = screen_wrappers[index],
             nextWrapper = screen_wrappers[index + 1];
 
+
         // ***
         if (!handlersMap.has(key)) {
             handlersMap.set(key, {
-                handler1: () => addDualSlide(screen_description, nextScreenContentBlock, "-left"),
-                handler2: () => addDualSlide(nextScreenDescription, screen_content_block, "-right"),
-                handler3: () => addMonoSlide(screen_content_block, screen_description),
-                handler4: () => addFlip(document.querySelectorAll(".screen__frame")[index]),
+                handler1: () => indirectDualSlideRemover(screen_description, nextScreenContentBlock, "-left"),
+                handler2: () => indirectDualSlideRemover(nextScreenDescription, screen_content_block, "-right"),
+                handler3: () => indirectMonoSlideRemover(screen_content_block, screen_description),
+                handler4: () => indirectFlipRemover(document.querySelectorAll(".screen__frame")[index]),
             });
         }
         
         const { handler1, handler2, handler3, handler4 } = handlersMap.get(key);
         // ***
 
-        if (window.innerWidth > 1000) {
-            desktopLayout(screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index);
-        } 
-        else if (window.innerWidth < 800){
-            mobileLayout(screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, handler4, screen_hitbox, screen_frame, index);
-        }
-        else {
-            deleteMobileLayout(wrapper, screen_content_block, screen_description);
-            monoLayout(screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index);
-            addDeletedModifiers(screen_content_block, index);
-        }
+        mobileLayout(screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, handler4, screen_hitbox, screen_frame, index);
     });
+}
+
+
+function desktopLayout (screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index) {
+    // Remove other Layouts and EventListeners
+    deleteMobileLayout(wrapper, screen_content_block, screen_description);
+    screen_content_block.removeEventListener("click", handler3);
+    
+    // Reset classNames and dual BEM modifiers
+    if (dualIndexList.includes(index) && dualIndexList.includes(index + 1)){
+        wrapper.classList.remove("wrapper--mono-block");
+        screen_content_block.className = `screen__content-block ${dualClassList[0]}`;
+        screen_description.className = `screen__description ${dualClassList[1]}`;
+        
+        
+        
+        nextWrapper.classList.remove("wrapper--mono-block");
+        nextScreenContentBlock.className = `screen__content-block ${dualClassList[2]}`;
+        nextScreenDescription.className = `screen__description ${dualClassList[3]}`;
+    }
+    
+    // Add Desktop EventListeners 
+    if (screen_content_block.classList.contains("content-block--dual-block-left") && nextScreenContentBlock) {
+        screen_content_block.addEventListener("click", handler1);
+        nextScreenContentBlock.addEventListener("click", handler2);
+    } else {
+        screen_content_block.addEventListener("click", handler3);
+    }
+    addDeletedModifiers(screen_content_block, index);
+}
+
+function mobileLayout (screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, handler4, screen_hitbox, screen_frame, index) {
+    if (wrapper.firstElementChild.className != "screen__hitbox"){ 
+        // Reuse monoLayout styles and remove Desktop styles
+        monoLayout(screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index);
+
+        // Remove monoLayout EventListeners
+        screen_content_block.removeEventListener("click", handler3);
+        screen_hitbox.addEventListener("click", handler4);
+        
+
+        // Add mobile animations and styles
+        screen_content_block.classList.add("content-block--flip");
+        screen_description.className = "screen__description description--flip";
+        
+        screen_frame.appendChild(screen_content_block);
+        screen_frame.appendChild(screen_description);
+        screen_hitbox.appendChild(screen_frame);
+        wrapper.appendChild(screen_hitbox);
+    }
+    // Reset content-blocks special BEM modifiers
+    addDeletedModifiers(screen_content_block, index);
+}
+
+function monoLayout (screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index){
+    // Watch for dual content blocks
+    if (
+        screen_content_block.classList.length > 1 &&
+        screen_content_block.classList.contains("content-block--dual-block-left")
+    ){
+        // In case of dual-content-blocks save BEM modifiers and index number
+        if (!dualIndexList.includes(index) && !document.querySelector(".screen__hitbox")) { 
+            dualIndexList.push(index, index + 1);
+        }
+        if (!dualClassList.includes(screen_content_block.classList.item(1)) && !document.querySelector(".screen__hitbox")) { 
+            dualClassList.push(
+                screen_content_block.classList.item(1), 
+                screen_description.classList.item(1), 
+                nextScreenContentBlock.classList.item(1), 
+                nextScreenDescription.classList.item(1)
+            )
+        }
+        
+        // Remove monoLayout EventListeners
+        screen_content_block.removeEventListener("click", handler1);
+        nextScreenContentBlock.removeEventListener("click", handler2);
+    }
+    // Save special content-blocks BEM modifiers and it's index number
+    if (!deletedModifiersIndexList.includes(index) && screen_content_block.classList.length > 1 && !screen_content_block.className.includes("dual-block") && !screen_content_block.className.includes("flip")){
+        deletedModifiersIndexList.push(index);
+        deletedModifiersClassList.push(screen_content_block.classList.item(1));
+    } else if (!deletedModifiersClassList.includes(index) && deletedModifiersClassList.length <= screen_content_blocks.length - 1){ deletedModifiersClassList.push("") }
+    
+    // Add monoLayout styles
+    wrapper.classList.add("wrapper--mono-block");
+    screen_content_block.className = "screen__content-block"
+    screen_description.className = "screen__description description--mono-block"
+    
+    // Add monoLayout EventListener
+    screen_content_block.addEventListener("click", handler3);
 }
 
 function deleteMobileLayout (wrapper, screen_content_block, screen_description){
@@ -159,100 +294,23 @@ function addDeletedModifiers (screen_content_block, index){
 }
 
 
-function desktopLayout (screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index) {
-    deleteMobileLayout(wrapper, screen_content_block, screen_description);
 
-    screen_content_block.removeEventListener("click", handler3);
-
-
-    if (dualIndexList.includes(index) && dualIndexList.includes(index + 1)){
-        wrapper.classList.remove("wrapper--mono-block");
-        screen_content_block.className = `screen__content-block ${dualClassList[0]}`;
-        screen_description.className = `screen__description ${dualClassList[1]}`;
-
-        
-
-        nextWrapper.classList.remove("wrapper--mono-block");
-        nextScreenContentBlock.className = `screen__content-block ${dualClassList[2]}`;
-        nextScreenDescription.className = `screen__description ${dualClassList[3]}`;
-    }
-
-    if (screen_content_block.classList.contains("content-block--dual-block-left") && nextScreenContentBlock) {
-        screen_content_block.addEventListener("click", handler1);
-        nextScreenContentBlock.addEventListener("click", handler2);
-    } else {
-        screen_content_block.addEventListener("click", handler3);
-    }
-    addDeletedModifiers(screen_content_block, index);
-}
-
-function mobileLayout (screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, handler4, screen_hitbox, screen_frame, index) {
-    if (wrapper.firstElementChild.className != "screen__hitbox"){ 
-        monoLayout(screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index);
-        screen_content_block.removeEventListener("click", handler3);
-        screen_hitbox.addEventListener("click", handler4);
-
-        screen_content_block.classList.add("content-block--flip");
-        screen_description.className = "screen__description description--flip";
-
-        screen_frame.appendChild(screen_content_block);
-        screen_frame.appendChild(screen_description);
-        screen_hitbox.appendChild(screen_frame);
-        wrapper.appendChild(screen_hitbox);
-    }
-    addDeletedModifiers(screen_content_block, index);
-}
-
-function monoLayout (screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index){
-    if (
-        screen_content_block.classList.length > 1 &&
-        screen_content_block.classList.contains("content-block--dual-block-left")
-    ){
-        if (!dualIndexList.includes(index) && !document.querySelectorAll(".screen__hitbox")[0]) { 
-            dualIndexList.push(index, index + 1) 
-        }
-        if (!dualClassList.includes(screen_content_block.classList.item(1)) && !document.querySelectorAll(".screen__hitbox")[0]) { 
-            dualClassList.push(
-                screen_content_block.classList.item(1), 
-                screen_description.classList.item(1), 
-                nextScreenContentBlock.classList.item(1), 
-                nextScreenDescription.classList.item(1)
-            )
-        }
-        
-        screen_content_block.removeEventListener("click", handler1);
-        nextScreenContentBlock.removeEventListener("click", handler2);
-
-
-        nextScreenContentBlock.className = "screen__content-block"
-        nextScreenDescription.className = "screen__description description--mono-block"
-        nextWrapper.classList.add("wrapper--mono-block");
-    }
-    if (!deletedModifiersIndexList.includes(index) && screen_content_block.classList.length > 1 && !screen_content_block.className.includes("dual-block") && !screen_content_block.className.includes("flip")){
-        deletedModifiersIndexList.push(index);
-        deletedModifiersClassList.push(screen_content_block.classList.item(1));
-    } else if (!deletedModifiersClassList.includes(index) && deletedModifiersClassList.length <= screen_content_blocks.length - 1){ deletedModifiersClassList.push("") }
-
-    wrapper.classList.add("wrapper--mono-block");
-    screen_content_block.className = "screen__content-block"
-    screen_description.className = "screen__description description--mono-block"
-
-    screen_content_block.addEventListener("click", handler3);
-}
-
-function addDualSlide(contentBlockDescription, otherContentBlock, side) {
+// INDIRECT TIMEOUT SYSTEM ADDER
+function indirectDualSlideRemover(contentBlockDescription, otherContentBlock, side) {
     timeoutSystem(contentBlockDescription, otherContentBlock, 1, side);
 }
         
-function addMonoSlide(contentBlock, contentBlockDescription) {
+function indirectMonoSlideRemover(contentBlock, contentBlockDescription) {
     timeoutSystem(contentBlock, contentBlockDescription, 2);
 }
 
-function addFlip(frame){
+function indirectFlipRemover(frame){
     timeoutSystem(frame, "", 3);
 }
 
 
+
+// USER-PAGE INTERACTION
 function monoSlide(contentBlock, contentBlockDescription) {
     contentBlock.classList.toggle("mono-slide-c");
     contentBlockDescription.classList.toggle("mono-slide-d");
@@ -271,6 +329,7 @@ function flip(frame){
 }
 
 
+// ANTI-SPAM
 function timeoutSystem (element1, element2, slideSelector, mainContentBlockSide) {
     if (universalTimeout) { }
     else if (slideSelector == 3){
@@ -289,9 +348,41 @@ function timeoutSystem (element1, element2, slideSelector, mainContentBlockSide)
     }
 }
 
+let isInsideArray = [false, false, false]
 
-
-
-window.addEventListener("resize", ResponsiveSlides);
+window.addEventListener("resize", () => {
+    if (window.innerWidth > 1000){
+        let resizeOptimizer = true;
+        if (resizeOptimizer && !isInsideArray[0] == true){ 
+            oneTimeDesktopLayoutRenderer()
+            isInsideArray[0] = true;
+            isInsideArray[1] = false;
+            isInsideArray[2] = false;
+            resizeOptimizer = false;
+            console.log("se ejecutó una sola vez el if de: > 1000px")
+        }
+    } else if (window.innerWidth < 800) {
+        let resizeOptimizer = true;
+        if (resizeOptimizer && !isInsideArray[1] == true){
+            oneTimeMobileLayoutRenderer()
+            isInsideArray[0] = false;
+            isInsideArray[1] = true;
+            isInsideArray[2] = false;
+            resizeOptimizer = false;
+            console.log("se ejecutó una sola vez el if de: < 800px")
+        }
+    }
+    else {
+        let resizeOptimizer = true;
+        if(resizeOptimizer && !isInsideArray[2] == true){
+            oneTimeMonoLayoutRenderer()
+            isInsideArray[0] = false;
+            isInsideArray[1] = false;
+            isInsideArray[2] = true;
+            resizeOptimizer = false;
+            console.log("se ejecutó una sola vez el if de: otro")
+        }
+    }
+});
 
 ResponsiveSlides();
