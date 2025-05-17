@@ -131,7 +131,6 @@ html{
 .header__button:active{
     color: #fff;
     transform: scale(1.01);
-    /* box-shadow: 0 0 5px 2px #0008 inset; */
 }
 
 
@@ -180,7 +179,6 @@ html{
 .screen__hitbox{
     display: flex;
     justify-content: center;
-    width: fit-content;
     width: max(450px, 50%);
 }
 

@@ -1,5 +1,5 @@
 // Cosas que no entiendo = ***
-// Cosas que entiendo más o menos ***?
+// Cosas que entiendo más o menos = ***?
 
 // SCREEN SWITCH
 const header_buttons = document.querySelectorAll(".header__button"),
@@ -21,22 +21,21 @@ header_buttons.forEach((button, index) =>{
 
         screens[index].classList.add("screen--active");
         screens_centers[index].classList.add("center--fade-in");
-    });
-    // ***
-    button.addEventListener('click', () => {
+
+        // ***
         button.scrollIntoView({
             behavior: 'smooth',
             block: 'nearest',
             inline: 'center'
         });
+        // ***
     });
-    // ***
 });
 
 
 
 
-// DINAMIC HEIGHT OF POSITION ABSOLUTE-RELATIVE: screen_centers
+// DINAMIC HEIGHT OF POSITION ABSOLUTE-RELATIVE: screen_content_blocks
 const screen_descriptions = document.querySelectorAll(".screen__description"),
 screen_content_blocks = document.querySelectorAll(".screen__content-block");
 
@@ -52,7 +51,7 @@ screen_descriptions.forEach(screen_description => {
 
 
 
-// DINAMIC HEIGHT OF POSITION ABSOLUTE-RELATIVE: screen_content_blocks
+// DINAMIC HEIGHT OF POSITION ABSOLUTE-RELATIVE: screen_centers
 // ***?
 const screen_centers = document.querySelectorAll(".screen__center"),
 screen_wrappers = document.querySelectorAll(".screen__wrapper");
@@ -81,7 +80,7 @@ function heightSetter (entries, heightToObserve, heightToSet){
 
 
 
-// RESPONSIVE SLIDE  AND TIMEOUT 
+// RESPONSIVE SLIDES  AND TIMEOUT 
 
 let universalTimeout = false,
     dualIndexList = [],
@@ -93,103 +92,8 @@ let universalTimeout = false,
 const handlersMap = new Map();
 // ***
 
-
-function oneTimeDesktopLayoutRenderer (){
-    screen_content_blocks.forEach((screen_content_block, index) =>{ 
-        
-        let screen_description = screen_descriptions[index],
-            nextScreenContentBlock = screen_content_blocks[index + 1],
-            nextScreenDescription = screen_descriptions[index + 1],
-            wrapper = screen_wrappers[index],
-            nextWrapper = screen_wrappers[index + 1];
-
-        // ***
-        const key = `block-${index}`;
-        
-        if (!handlersMap.has(key)) {
-            handlersMap.set(key, {
-                handler1: () => indirectDualSlideRemover(screen_description, nextScreenContentBlock, "-left"),
-                handler2: () => indirectDualSlideRemover(nextScreenDescription, screen_content_block, "-right"),
-                handler3: () => indirectMonoSlideRemover(screen_content_block, screen_description),
-            });
-        }
-        
-        const { handler1, handler2, handler3 } = handlersMap.get(key);
-        // ***
-
-        
-        desktopLayout(screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index);
-    });
-}
-
-function oneTimeMonoLayoutRenderer (){
-    screen_content_blocks.forEach((screen_content_block, index) => {
-        
-        let screen_description = screen_descriptions[index],
-            nextScreenContentBlock = screen_content_blocks[index + 1],
-            nextScreenDescription = screen_descriptions[index + 1],
-            wrapper = screen_wrappers[index],
-            nextWrapper = screen_wrappers[index + 1];
-
-        // ***
-        const key = `block-${index}`;
-
-        if (!handlersMap.has(key)) {
-            handlersMap.set(key, {
-                handler1: () => indirectDualSlideRemover(screen_description, nextScreenContentBlock, "-left"),
-                handler2: () => indirectDualSlideRemover(nextScreenDescription, screen_content_block, "-right"),
-                handler3: () => indirectMonoSlideRemover(screen_content_block, screen_description),
-            });
-        }
-
-        const { handler1, handler2, handler3 } = handlersMap.get(key);
-        // ***
-
-        deleteMobileLayout(wrapper, screen_content_block, screen_description);
-        monoLayout(screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index);
-        addDeletedModifiers(screen_content_block, index);
-    });
-}
-
-function oneTimeMobileLayoutRenderer (){
-    screen_content_blocks.forEach((screen_content_block, index) => {
-        // ***
-        const key = `block-${index}`;
-        // ***
-
-        const screen_hitbox = document.createElement("div"),
-            screen_frame = document.createElement("div");
-
-            screen_hitbox.className = "screen__hitbox";
-            screen_frame.className = "screen__frame";
-
-
-        let screen_description = screen_descriptions[index],
-            nextScreenContentBlock = screen_content_blocks[index + 1],
-            nextScreenDescription = screen_descriptions[index + 1],
-            wrapper = screen_wrappers[index],
-            nextWrapper = screen_wrappers[index + 1];
-
-
-        // ***
-        if (!handlersMap.has(key)) {
-            handlersMap.set(key, {
-                handler1: () => indirectDualSlideRemover(screen_description, nextScreenContentBlock, "-left"),
-                handler2: () => indirectDualSlideRemover(nextScreenDescription, screen_content_block, "-right"),
-                handler3: () => indirectMonoSlideRemover(screen_content_block, screen_description),
-                handler4: () => indirectFlipRemover(document.querySelectorAll(".screen__frame")[index]),
-            });
-        }
-        
-        const { handler1, handler2, handler3, handler4 } = handlersMap.get(key);
-        // ***
-
-        mobileLayout(screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, handler4, screen_hitbox, screen_frame, index);
-    });
-}
-
-
-function desktopLayout (screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index) {
+    // RESPONSIVE LAYOUTS
+function desktopLayout (screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, empty, index) {
     // Remove other Layouts and EventListeners
     deleteMobileLayout(wrapper, screen_content_block, screen_description);
     screen_content_block.removeEventListener("click", handler3);
@@ -217,8 +121,8 @@ function desktopLayout (screen_content_block, screen_description, nextScreenCont
     addDeletedModifiers(screen_content_block, index);
 }
 
-function mobileLayout (screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, handler4, screen_hitbox, screen_frame, index) {
-    if (wrapper.firstElementChild.className != "screen__hitbox"){ 
+function mobileLayout (screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, handler4, index, screen_hitbox, screen_frame) {
+    if (wrapper.firstElementChild.className !== "screen__hitbox"){ 
         // Reuse monoLayout styles and remove Desktop styles
         monoLayout(screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index);
 
@@ -240,7 +144,7 @@ function mobileLayout (screen_content_block, screen_description, nextScreenConte
     addDeletedModifiers(screen_content_block, index);
 }
 
-function monoLayout (screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index){
+function monoLayout (screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, empty, index){
     // Watch for dual content blocks
     if (
         screen_content_block.classList.length > 1 &&
@@ -264,7 +168,13 @@ function monoLayout (screen_content_block, screen_description, nextScreenContent
         nextScreenContentBlock.removeEventListener("click", handler2);
     }
     // Save special content-blocks BEM modifiers and it's index number
-    if (!deletedModifiersIndexList.includes(index) && screen_content_block.classList.length > 1 && !screen_content_block.className.includes("dual-block") && !screen_content_block.className.includes("flip")){
+    if (
+        !deletedModifiersIndexList.includes(index) && 
+        screen_content_block.classList.length > 1 && 
+        !screen_content_block.className.includes("dual-block") && 
+        !screen_content_block.className.includes("flip") &&
+        !screen_content_block.className.includes("slide")
+    ){
         deletedModifiersIndexList.push(index);
         deletedModifiersClassList.push(screen_content_block.classList.item(1));
     } else if (!deletedModifiersClassList.includes(index) && deletedModifiersClassList.length <= screen_content_blocks.length - 1){ deletedModifiersClassList.push("") }
@@ -295,7 +205,7 @@ function addDeletedModifiers (screen_content_block, index){
 
 
 
-// INDIRECT TIMEOUT SYSTEM ADDER
+    // INDIRECT TIMEOUT SYSTEM ADD (para remover listeners después)
 function indirectDualSlideRemover(contentBlockDescription, otherContentBlock, side) {
     timeoutSystem(contentBlockDescription, otherContentBlock, 1, side);
 }
@@ -310,7 +220,7 @@ function indirectFlipRemover(frame){
 
 
 
-// USER-PAGE INTERACTION
+    // USER-PAGE INTERACTION
 function monoSlide(contentBlock, contentBlockDescription) {
     contentBlock.classList.toggle("mono-slide-c");
     contentBlockDescription.classList.toggle("mono-slide-d");
@@ -329,7 +239,7 @@ function flip(frame){
 }
 
 
-// ANTI-SPAM
+    // ANTI-SPAM
 function timeoutSystem (element1, element2, slideSelector, mainContentBlockSide) {
     if (universalTimeout) { }
     else if (slideSelector == 3){
@@ -348,41 +258,92 @@ function timeoutSystem (element1, element2, slideSelector, mainContentBlockSide)
     }
 }
 
-let isInsideArray = [false, false, false]
 
-window.addEventListener("resize", () => {
+
+function createKeysAndVariables (screen_content_block, index) {
+    let screen_description = screen_descriptions[index],
+    nextScreenContentBlock = screen_content_blocks[index + 1],
+    nextScreenDescription = screen_descriptions[index + 1],
+    wrapper = screen_wrappers[index],
+    nextWrapper = screen_wrappers[index + 1];
+
+    // ***
+    const key = `block-${index}`;
+    
+    if (!handlersMap.has(key)) {
+        handlersMap.set(key, {
+            handler1: () => indirectDualSlideRemover(screen_description, nextScreenContentBlock, "-left"),
+            handler2: () => indirectDualSlideRemover(nextScreenDescription, screen_content_block, "-right"),
+            handler3: () => indirectMonoSlideRemover(screen_content_block, screen_description),
+            handler4: () => indirectFlipRemover(document.querySelectorAll(".screen__frame")[index]),
+        });
+    }
+    
+    const { handler1, handler2, handler3, handler4 } = handlersMap.get(key);
+    // ***
+
+    return [screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, handler4, index];
+}
+
+
+    // APPLY EACH LAYOUT
+function renderDesktopLayoutOnce (){
+    screen_content_blocks.forEach((screen_content_block, index) =>{ 
+        const getShortInfo = createKeysAndVariables(screen_content_block, index);
+
+        desktopLayout(...getShortInfo);
+    });
+}
+
+function renderMonoLayoutOnce (){
+    screen_content_blocks.forEach((screen_content_block, index) => {
+        const getShortInfo = createKeysAndVariables(screen_content_block, index);
+
+        deleteMobileLayout(getShortInfo[4], screen_content_block, getShortInfo[1]);
+        monoLayout(...getShortInfo);
+        addDeletedModifiers(screen_content_block, index);
+    });
+}
+
+function renderMobileLayoutOnce (){
+    screen_content_blocks.forEach((screen_content_block, index) => {
+        const getShortInfo = createKeysAndVariables(screen_content_block, index);
+
+        const screen_hitbox = document.createElement("div"),
+            screen_frame = document.createElement("div");
+
+        screen_hitbox.className = "screen__hitbox";
+        screen_frame.className = "screen__frame";
+
+        mobileLayout(...getShortInfo, screen_hitbox, screen_frame);
+    });
+}
+
+
+
+// Active ¿media query? Array Verifier
+let isActiveArray = [false, false, false];
+
+function renderOnceVerifier (){
     if (window.innerWidth > 1000){
-        let resizeOptimizer = true;
-        if (resizeOptimizer && !isInsideArray[0] == true){ 
-            oneTimeDesktopLayoutRenderer()
-            isInsideArray[0] = true;
-            isInsideArray[1] = false;
-            isInsideArray[2] = false;
-            resizeOptimizer = false;
-            console.log("se ejecutó una sola vez el if de: > 1000px")
+        if (!isActiveArray[0]){ 
+            renderDesktopLayoutOnce();
+            isActiveArray = [true, false, false];
         }
     } else if (window.innerWidth < 800) {
-        let resizeOptimizer = true;
-        if (resizeOptimizer && !isInsideArray[1] == true){
-            oneTimeMobileLayoutRenderer()
-            isInsideArray[0] = false;
-            isInsideArray[1] = true;
-            isInsideArray[2] = false;
-            resizeOptimizer = false;
-            console.log("se ejecutó una sola vez el if de: < 800px")
+        if (!isActiveArray[1]){
+            renderMobileLayoutOnce();
+            isActiveArray = [false, true, false];
         }
     }
     else {
-        let resizeOptimizer = true;
-        if(resizeOptimizer && !isInsideArray[2] == true){
-            oneTimeMonoLayoutRenderer()
-            isInsideArray[0] = false;
-            isInsideArray[1] = false;
-            isInsideArray[2] = true;
-            resizeOptimizer = false;
-            console.log("se ejecutó una sola vez el if de: otro")
+        if(!isActiveArray[2]){
+            renderMonoLayoutOnce();
+            isActiveArray = [false, false, true];
         }
     }
-});
+}
 
-ResponsiveSlides();
+window.addEventListener("resize", renderOnceVerifier);
+
+renderOnceVerifier();
