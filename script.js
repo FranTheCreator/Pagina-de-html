@@ -1,3 +1,7 @@
+// Cosas que no entiendo = ***
+// Cosas que entiendo más o menos ***?
+
+
 // CAMBIO DE SCREEN
 
 const header_buttons = document.querySelectorAll(".header__button"),
@@ -19,7 +23,17 @@ header_buttons.forEach((button, index) =>{
         screens[index].classList.add("screen--active");
         screens_centers[index].classList.add("center--fade-in");
     });
+    // ***
+    button.addEventListener('click', () => {
+        button.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+            inline: 'center'
+        });
+    });
+    // ***
 });
+
 
 
 
@@ -27,6 +41,7 @@ header_buttons.forEach((button, index) =>{
 const screen_descriptions = document.querySelectorAll(".screen__description"),
 screen_content_blocks = document.querySelectorAll(".screen__content-block");
 
+// ***?
 const descriptionsObserver = new ResizeObserver(entries => {
     heightSetter(entries, screen_descriptions, screen_content_blocks);
 });
@@ -34,10 +49,12 @@ const descriptionsObserver = new ResizeObserver(entries => {
 screen_descriptions.forEach(screen_description => {
     descriptionsObserver.observe(screen_description);
 });
+// ***?
 
 
 
 // HEIGHT DINAMICO de screen_content_blocks
+// ***?
 const screen_centers = document.querySelectorAll(".screen__center"),
 screen_wrappers = document.querySelectorAll(".screen__wrapper");
 
@@ -48,6 +65,7 @@ const wrappersObserver = new ResizeObserver(entries => {
 screen_wrappers.forEach(screen_wrapper => {
     wrappersObserver.observe(screen_wrapper);
 });
+// ***?
 
 
 
@@ -70,45 +88,68 @@ let universalTimeout = false,
     dualIndexList = [],
     dualClassList = [];
 
+// ***
 const handlersMap = new Map();
+// ***
 // Dios como odio el removeEventListener, por qué no lo hicieron más fáciiiiiiil, es horrible
 
 
 
 function ResponsiveSlides (){
     screen_content_blocks.forEach((screen_content_block, index) => {
+        // ***
         const key = `block-${index}`;
+        // ***
 
-        let screen__description = screen_descriptions[index],
+        const screen_hitbox = document.createElement("div"),
+            screen_frame = document.createElement("div");
+
+            screen_hitbox.className = "screen__hitbox";
+            screen_frame.className = "screen__frame";
+
+
+        let screen_description = screen_descriptions[index],
             nextScreenContentBlock = screen_content_blocks[index + 1],
             nextScreenDescription = screen_descriptions[index + 1],
-            wrapper = screen_content_block.parentElement;
-            nextWrapper = nextScreenContentBlock?.parentElement;
+            wrapper = screen_wrappers[index],
+            nextWrapper = screen_wrappers[index + 1];
 
+        // ***
         if (!handlersMap.has(key)) {
             handlersMap.set(key, {
-                handler1: () => addDualSlide(screen__description, nextScreenContentBlock, "-left"),
+                handler1: () => addDualSlide(screen_description, nextScreenContentBlock, "-left"),
                 handler2: () => addDualSlide(nextScreenDescription, screen_content_block, "-right"),
-                handler3: () => addMonoSlide(screen_content_block, screen__description),
+                handler3: () => addMonoSlide(screen_content_block, screen_description),
+                handler4: () => addFlip(document.querySelectorAll(".screen__frame")[index]),
             });
         }
-
-        const { handler1, handler2, handler3 } = handlersMap.get(key);
+        
+        const { handler1, handler2, handler3, handler4 } = handlersMap.get(key);
+        // ***
 
         if (window.innerWidth > 1000) {
+            console.log("estas en modo desktop")
+
+            if (document.querySelectorAll(".screen__hitbox")[0]){
+                wrapper.appendChild(screen_content_block);
+                wrapper.appendChild(screen_description);
+                wrapper.removeChild(document.querySelectorAll(".screen__hitbox")[0]);
+            }
+
             screen_content_block.removeEventListener("click", handler3);
 
             if (dualIndexList.includes(index) && dualIndexList.includes(index + 1)){
                 wrapper.classList.remove("wrapper--mono-block");
-                screen_content_block.classList.add(dualClassList[0]);
-                // screen__description.classList.replace("description--mono-block", dualClassList[1]);
-                screen__description.classList = `screen__description ${dualClassList[1]}`;
+                // setTimeout(()=>{screen_content_block.className = `screen__content-block ${dualClassList[0]}`;}, 150)
+                screen_content_block.className = `screen__content-block ${dualClassList[0]}`;
+                screen_description.className = `screen__description ${dualClassList[1]}`;
 
                 
 
                 nextWrapper.classList.remove("wrapper--mono-block");
-                nextScreenContentBlock.classList.add(dualClassList[2]);
-                nextScreenDescription.classList = `screen__description ${dualClassList[3]}`;
+                // setTimeout(()=>{nextScreenContentBlock.className = `screen__content-block ${dualClassList[2]}`;}, 150)
+                nextScreenContentBlock.className = `screen__content-block ${dualClassList[2]}`;
+                nextScreenDescription.className = `screen__description ${dualClassList[3]}`;
             }
 
             if (screen_content_block.classList.contains("content-block--dual-block-left") && nextScreenContentBlock) {
@@ -117,45 +158,65 @@ function ResponsiveSlides (){
             } else {
                 screen_content_block.addEventListener("click", handler3);
             }
+        } 
+        else if (window.innerWidth < 800){
+            if (wrapper.firstElementChild.className != "screen__hitbox"){ 
+                console.log("ejecutando modo mobile");
+                monoLayout(screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index);
+                screen_content_block.removeEventListener("click", handler3);
+                screen_hitbox.addEventListener("click", handler4);
 
-        } else {
-            if (
-                screen_content_block.classList.length > 1 &&
-                screen_content_block.classList.contains("content-block--dual-block-left")
-            ){
-                if (!dualIndexList.includes(index)) { 
-                    dualIndexList.push(index, index + 1) 
-                }
-                if (!dualClassList.includes(screen_content_block.classList.item(1))) { 
-                    dualClassList.push(
-                        screen_content_block.classList.item(1), 
-                        screen__description.classList.item(1), 
-                        nextScreenContentBlock.classList.item(1), 
-                        nextScreenDescription.classList.item(1)
-                    )
-                }
-                screen_content_block.removeEventListener("click", handler1);
-                nextScreenContentBlock.removeEventListener("click", handler2);
-                
-                screen_content_block.classList = "screen__content-block"
-                screen__description.classList = "screen__description description--mono-block"
-                wrapper.classList.add("wrapper--mono-block");
-                screen_content_block.classList.remove(screen_content_block.classList.item(1));
-                // screen__description.classList.replace(screen__description.classList.item(1), "description--mono-block");
+                screen_content_block.classList.add("content-block--flip");
+                screen_description.className = "screen__description description--flip";
 
-
-                nextScreenContentBlock.classList = "screen__content-block"
-                nextScreenDescription.classList = "screen__description description--mono-block"
-                nextWrapper.classList.add("wrapper--mono-block");
-                nextScreenContentBlock.classList.remove(nextScreenContentBlock.classList.item(1));
-                // nextScreenDescription.classList.replace(nextScreenDescription.classList.item(1), "description--mono-block")
+                screen_frame.appendChild(screen_content_block);
+                screen_frame.appendChild(screen_description);
+                screen_hitbox.appendChild(screen_frame);
+                wrapper.appendChild(screen_hitbox);
             }
-            screen_content_block.addEventListener("click", handler3);
+        } 
+        else {
+            console.log("estas entre modo mobile y desktop");
+            if (document.querySelectorAll(".screen__hitbox")[0]){
+                wrapper.appendChild(screen_content_block);
+                wrapper.appendChild(screen_description);
+                wrapper.removeChild(document.querySelectorAll(".screen__hitbox")[0]);
+            }
+            monoLayout(screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index);
         }
     });
 }
 
+function monoLayout (screen_content_block, screen_description, nextScreenContentBlock, nextScreenDescription, wrapper, nextWrapper, handler1, handler2, handler3, index){
+    if (
+        screen_content_block.classList.length > 1 &&
+        screen_content_block.classList.contains("content-block--dual-block-left")
+    ){
+        if (!dualIndexList.includes(index) && !document.querySelectorAll(".screen__hitbox")[0]) { 
+            dualIndexList.push(index, index + 1) 
+        }
+        if (!dualClassList.includes(screen_content_block.classList.item(1)) && !document.querySelectorAll(".screen__hitbox")[0]) { 
+            dualClassList.push(
+                screen_content_block.classList.item(1), 
+                screen_description.classList.item(1), 
+                nextScreenContentBlock.classList.item(1), 
+                nextScreenDescription.classList.item(1)
+            )
+        }
+        screen_content_block.removeEventListener("click", handler1);
+        nextScreenContentBlock.removeEventListener("click", handler2);
 
+
+        nextScreenContentBlock.className = "screen__content-block"
+        nextScreenDescription.className = "screen__description description--mono-block"
+        nextWrapper.classList.add("wrapper--mono-block");
+    }
+    wrapper.classList.add("wrapper--mono-block");
+    screen_content_block.className = "screen__content-block"
+    screen_description.className = "screen__description description--mono-block"
+
+    screen_content_block.addEventListener("click", handler3);
+}
 
 function addDualSlide(contentBlockDescription, otherContentBlock, side) {
     timeoutSystem(contentBlockDescription, otherContentBlock, 1, side);
@@ -165,7 +226,15 @@ function addMonoSlide(contentBlock, contentBlockDescription) {
     timeoutSystem(contentBlock, contentBlockDescription, 2);
 }
 
+function addFlip(frame){
+    timeoutSystem(frame, "", 3);
+}
 
+
+function monoSlide(contentBlock, contentBlockDescription) {
+    contentBlock.classList.toggle("mono-slide-c");
+    contentBlockDescription.classList.toggle("mono-slide-d");
+}
 
 function dualSlide(contentBlockDescription, oppositeContentBlock, mainContentBlockSide) {
     contentBlockDescription.classList.toggle(`dual-slide${mainContentBlockSide}`);
@@ -175,13 +244,19 @@ function dualSlide(contentBlockDescription, oppositeContentBlock, mainContentBlo
     oppositeContentBlock.classList.add("no-index");
 }
 
-function monoSlide(contentBlock, contentBlockDescription) {
-    contentBlock.classList.toggle("mono-slide-c");
-    contentBlockDescription.classList.toggle("mono-slide-d");
+function flip(frame){
+    frame.classList.toggle("mobile-flip-card");
+    console.log("click");
 }
+
 
 function timeoutSystem (element1, element2, slideSelector, mainContentBlockSide) {
     if (universalTimeout) { }
+    else if (slideSelector == 3){
+        flip(element1)
+        universalTimeout = true;
+        setTimeout(() => universalTimeout = false, 300);
+    }
     else if (slideSelector == 2) {
         monoSlide(element1, element2);
         universalTimeout = true;

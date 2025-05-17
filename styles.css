@@ -138,14 +138,11 @@ html{
 /* SCREENS */
 
 .screen{
-    /* height: 870px */
     z-index: 0;
     display: none;
     justify-content: center;
     align-items: center;
-    /* margin-top: 100px; */
     width: 100%;
-    /* min-width: 1100px; */
     min-height: calc(100vh - 100px);
     padding: 50px 0 50px;
     background-color: var(--color-section-backgrounds);
@@ -171,10 +168,31 @@ html{
     position: absolute;
     top: 0;
     left: 0;
-    height: fit-content;
+    height: 100%;
     width: 100%;
     background-color: transparent;
 }
+
+/* ------------ */
+
+.screen__hitbox{
+    display: flex;
+    justify-content: center;
+    width: fit-content;
+    width: max(450px, 50%);
+}
+
+.screen__frame{ 
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    transform-style: preserve-3d;
+    transition: transform .5s;
+}
+
+/* ------------ */
 
 .screen__content-block{
     user-select: none;
@@ -185,7 +203,7 @@ html{
     position: relative;
     border-radius: 2px 0 0 2px;
     z-index: 2;
-    transition: margin-right .4s, right .4s;
+    transition: margin-right .4s, right .4s, transform .5s;
 }
 
 .screen__content-block:hover{
@@ -231,6 +249,7 @@ html{
 }
 
 .screen__description-title{
+    user-select: none;
     font-size: 1.17em;
     text-align: center;
     color: lightgray;
@@ -470,6 +489,8 @@ html{
     left: auto;
 }
 
+
+
 .content-block--dual-block-left{
     width: 45%;
 }
@@ -479,6 +500,7 @@ html{
     border-radius: 0 2px 2px 0;
     float: right;
 }
+
 
 .description--dual-block-left{
     width: 55%;
@@ -491,6 +513,34 @@ html{
     right: 0;
 }
 
+
+
+.mobile-flip-card {
+    transform: rotateY(180deg);
+    z-index: 0;
+    transition: transform .5s;
+}
+
+.content-block--flip{
+    backface-visibility: hidden;
+}
+
+
+.description--flip{
+    width: auto;
+    transform: rotateY(180deg);
+    backface-visibility: hidden;
+    opacity: 1;
+    scale: 1;
+    right: 0;
+    margin: auto;
+    transition: transform .5s;
+    cursor: pointer;
+}
+
+.screen__hitbox:has(.mobile-flip-card) .description--flip{
+    opacity: 1;
+}
 
 
 
@@ -551,7 +601,7 @@ html{
         justify-content: flex-start;
     }
 
-/* -------- */
+    /* -------------- */
 
     .screen__center{
         flex-flow: column;
