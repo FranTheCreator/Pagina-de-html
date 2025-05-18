@@ -52,10 +52,10 @@ screen_descriptions.forEach(screen_description => {
 
 
 // DINAMIC HEIGHT OF POSITION ABSOLUTE-RELATIVE: screen_centers
-// ***?
 const screen_centers = document.querySelectorAll(".screen__center"),
 screen_wrappers = document.querySelectorAll(".screen__wrapper");
 
+// ***?
 const wrappersObserver = new ResizeObserver(entries => {
     heightSetter(entries, screen_wrappers, screen_centers);
 });
@@ -115,6 +115,8 @@ function desktopLayout (screen_content_block, screen_description, nextScreenCont
     if (screen_content_block.classList.contains("content-block--dual-block-left") && nextScreenContentBlock) {
         screen_content_block.addEventListener("click", handler1);
         nextScreenContentBlock.addEventListener("click", handler2);
+    } else if (screen_content_block.classList.contains("content-block--dual-block-right")){
+        return
     } else {
         screen_content_block.addEventListener("click", handler3);
     }
